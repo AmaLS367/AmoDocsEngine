@@ -1,4 +1,4 @@
-# amo_doc_generator
+# AmoDocsEngine
 
 This repository contains a lightweight PHP integration that pulls amoCRM deal/contact data and renders `.docx` documents (orders, acts, etc.) using PhpWord templates. Everything (OAuth, API requests, template filling) runs inside a shared-hosting friendly project without background workers or queues.
 
