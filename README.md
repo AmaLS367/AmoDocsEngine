@@ -43,8 +43,8 @@ This repository contains a lightweight PHP integration that pulls amoCRM deal/co
 Install dependencies and run PHPUnit (commands below are for Windows PowerShell; on Linux/macOS drop the `.\` prefix).
 
 ```powershell
-PS D:\Coding projects\Projects php\amo_doc_generator> composer install
-PS D:\Coding projects\Projects php\amo_doc_generator> .\vendor\bin\phpunit
+composer install
+.\vendor\bin\phpunit
 ```
 
 ## Documentation
