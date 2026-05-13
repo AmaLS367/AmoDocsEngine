@@ -33,7 +33,7 @@ $in  = json_decode($raw, true);
 if (json_last_error() !== JSON_ERROR_NONE) { http_response_code(400); echo json_encode(['error'=>'Bad JSON']); exit; }
 
 $leadId   = (int)($in['lead_id'] ?? 0);
-$template = (($in['template'] ?? 'order') === 'act') ? 'act' : 'order';
+$template = (string)($in['template'] ?? 'order');
 $products = is_array($in['products'] ?? null) ? $in['products'] : [];
 $discount = (int)($in['discount'] ?? 0);
 
@@ -93,6 +93,9 @@ try{
 
   echo json_encode(['url'=>$url], JSON_UNESCAPED_UNICODE);
 
+} catch (InvalidArgumentException $e) {
+  http_response_code(400);
+  echo json_encode(['error'=>$e->getMessage()], JSON_UNESCAPED_UNICODE);
 } catch (Throwable $e){
   $log(['EX'=>$e->getMessage(),'line'=>$e->getLine()]);
   http_response_code(500);

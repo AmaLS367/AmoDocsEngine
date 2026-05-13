@@ -63,6 +63,10 @@ final class DocumentGenerationServiceTest extends TestCase
             'public_documents_url' => 'https://docs.example',
             'dir_mode' => 0777,
             'file_mode' => 0644,
+            'templates' => [
+                'order' => 'order_template.docx',
+                'act' => 'act_template.docx',
+            ],
         ];
     }
 }

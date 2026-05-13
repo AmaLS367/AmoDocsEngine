@@ -15,6 +15,7 @@ final class DocumentGenerationService
     /** @var array<string, mixed> */
     private array $config;
     private CustomFieldMapper $fieldMapper;
+    private TemplateRegistry $templateRegistry;
     /** @var callable */
     private $processorFactory;
 
@@ -25,6 +26,7 @@ final class DocumentGenerationService
     {
         $this->config = $config;
         $this->fieldMapper = new CustomFieldMapper(is_array($config['amo_fields'] ?? null) ? $config['amo_fields'] : []);
+        $this->templateRegistry = TemplateRegistry::fromConfig($config);
         $this->processorFactory = $processorFactory ?? static function (string $templatePath): TemplateProcessor {
             return new TemplateProcessor($templatePath);
         };
@@ -43,7 +45,7 @@ final class DocumentGenerationService
             throw new RuntimeException('Invalid lead id for document generation');
         }
 
-        $templatePath = $this->templatePath($template);
+        $templatePath = $this->templateRegistry->path($template);
         $documentDir = rtrim((string)$this->config['document_path'], '/');
         @is_dir($documentDir) || @mkdir($documentDir, (int)$this->config['dir_mode'], true);
 
@@ -104,19 +106,6 @@ final class DocumentGenerationService
             'filename' => $filename,
             'total' => (int)$summary['total'],
         ];
-    }
-
-    private function templatePath(string $template): string
-    {
-        $templateDir = rtrim((string)$this->config['template_path'], '/');
-        $templateFile = $template === 'act' ? 'act_template.docx' : 'order_template.docx';
-        $path = $templateDir . '/' . $templateFile;
-
-        if (!is_file($path)) {
-            throw new RuntimeException('Template not found');
-        }
-
-        return $path;
     }
 
     /**
