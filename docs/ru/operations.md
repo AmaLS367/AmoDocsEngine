@@ -8,6 +8,8 @@
 - `documents/` хранит готовые DOCX.
 - `logs/generate.log` хранит JSON-события ошибок.
 
+По возможности держите `config/`, `data/`, `documents/` и `logs/` вне прямого публичного доступа. Если хостинг их раздает, отключите listing директорий и заблокируйте sensitive files.
+
 ## Smoke-тест
 
 ```bash
@@ -31,6 +33,19 @@ Windows:
 | Пустые поля авто | ID в `amo_fields` совпадают с полями сделки |
 | Template not found | Ключ шаблона есть, файл лежит в `templates/` |
 | Битая ссылка на документ | `public_documents_url` совпадает с hosting path |
+
+## Чтение логов
+
+`logs/generate.log` пишется append-only JSON lines. Типичная запись:
+
+```json
+{
+  "EX": "Template not found",
+  "line": 123
+}
+```
+
+По сообщению можно понять источник: шаблон, amoCRM, security или filesystem.
 
 ## Миграция
 

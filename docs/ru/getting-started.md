@@ -20,6 +20,16 @@ composer install
 Copy-Item config/config.example.php config/config.php
 ```
 
+## Развернуть файлы
+
+Загрузите проект в директорию хостинга, откуда будут раздаваться UI и API. PHP-процессу нужны права на запись:
+
+```bash
+chmod -R 775 documents logs data
+```
+
+`777` используйте только если хостинг не дает нормально настроить владельца процесса.
+
 ## OAuth amoCRM
 
 1. Создайте приватную интеграцию amoCRM.
@@ -28,6 +38,8 @@ Copy-Item config/config.example.php config/config.php
 4. Откройте ссылку авторизации и завершите flow.
 5. Проверьте, что появился `config/token.json`.
 
+Refresh работает автоматически: если amoCRM вернул `401`, `AmoCrmClient` обновит access token и повторит запрос.
+
 ## Открыть UI
 
 ```text
@@ -35,5 +47,17 @@ https://<domain>/<path>/public/ui.html?lead_id=<amoCRM_LEAD_ID>
 ```
 
 Если UI и API раздаются не из одного root, обновите `API_BASE` в `public/app.js`.
+
+## Первая проверка
+
+Перед реальной генерацией проверьте backend-расчет:
+
+```bash
+curl -X POST https://<domain>/<path>/api/quote.php \
+  -H 'Content-Type: application/json' \
+  -d '{"discount":0,"products":[{"name":"Test","unit_price":1000,"qty":1}]}'
+```
+
+Ожидается JSON с `"total":1000` и `total_words`.
 
 Дальше: [Конфигурация](configuration.md)

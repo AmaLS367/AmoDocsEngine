@@ -13,6 +13,8 @@
 - `subdomain`
 - `token_path`
 
+В `base_domain` указывайте полный домен amoCRM, например `https://example.amocrm.ru`.
+
 ## Маппинг полей
 
 Кастомные поля сделки ищутся по ID amoCRM, не по названию:
@@ -45,6 +47,28 @@ HMAC-режим нужен только для доверенных server-to-se
 ],
 ```
 
+Режимы:
+
+| Режим | Для чего |
+| --- | --- |
+| `browser_token` | Режим по умолчанию. `prefill.php` выдает `generate_token`, `generate.php` проверяет его. |
+| `hmac` | Доверенный backend-клиент подписывает raw body через `X-Signature`. |
+| `either` | Переходный режим, где разрешены browser token или HMAC. |
+
+Не кладите HMAC secret в браузерный JavaScript. Если включен `hmac`, `hmac_secret` обязан быть заполнен.
+
+## Runtime-пути
+
+| Ключ | Назначение |
+| --- | --- |
+| `template_path` | Исходные `.docx` шаблоны |
+| `document_path` | Сгенерированные документы |
+| `public_documents_url` | Публичный URL-префикс документов |
+| `temp_data_path` | Корень runtime-состояния |
+| `cache_path` | Кэш префилла |
+| `logs_path` | JSON-логи |
+| `token_path` | OAuth-токены amoCRM |
+
 ## Шаблоны
 
 ```php
@@ -55,5 +79,14 @@ HMAC-режим нужен только для доверенных server-to-se
 ```
 
 Новый ключ в этой секции подключает новый шаблон через registry.
+
+## Не коммитить
+
+- `config/config.php`
+- `config/token.json`
+- `.env`
+- `data/`
+- `documents/`
+- `logs/`
 
 Дальше: [API](api.md)

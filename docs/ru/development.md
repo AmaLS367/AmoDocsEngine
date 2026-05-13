@@ -17,10 +17,26 @@ composer install
 .\vendor\bin\phpunit
 ```
 
+Опциональная проверка PHP syntax:
+
+```powershell
+$files = Get-ChildItem -Recurse -Filter *.php | Where-Object { $_.FullName -notlike '*\vendor\*' }
+foreach ($file in $files) { php -l $file.FullName }
+```
+
 ## Правила контрибьюта
 
 - Используйте ветки вроде `docs/readme-polish` или `fix/template-registry`.
 - Не коммитьте `config/config.php`, `config/token.json`, `.env`, логи, cache-файлы и generated documents.
 - Используйте относительные ссылки в документации и проверяйте их перед PR.
+
+## Стиль коммитов
+
+Делайте небольшие коммиты по смыслу:
+
+- `docs: update api guide`
+- `fix(frontend): use api base path`
+- `refactor(api): isolate prefill cache`
+- `test: cover token validation`
 
 Дальше: [К индексу документации](index.md)
