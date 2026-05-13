@@ -1,7 +1,7 @@
 (function(){
   const qs = new URLSearchParams(location.search);
   const leadId = Number(qs.get('lead_id')||0);
-  const API = '/api/generate.php';
+  const API_BASE = '/api';
 
   const $ = s=>document.querySelector(s);
   const tbody = $('#tbl tbody');
@@ -133,7 +133,7 @@
     if(!body.products.length){ toast('Добавьте хотя бы одну позицию'); return; }
     genBtn.disabled = true; genBtn.textContent = 'Генерирую…';
     try{
-      const r = await fetch(API+'/api/generate.php', {
+      const r = await fetch(API_BASE + '/generate.php', {
         method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
       });
       const text = await r.text(); let j=null;
@@ -149,7 +149,7 @@
   (async function(){
     if(!leadId){ addRow(); return; }
     try{
-      const r = await fetch(API+'/api/prefill.php?lead_id='+leadId);
+      const r = await fetch(API_BASE + '/prefill.php?lead_id='+leadId);
       const j = await r.json();
       (j.products||[]).forEach(p=>{
         addRow(p.name||'', p.unit_price||p.price||0, p.qty||p.quantity||1, p.discount_percent||0);
