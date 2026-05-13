@@ -8,6 +8,7 @@
   const sumEl = $('#sum'), totalEl = $('#total'), cntEl = $('#cnt'), wordsEl = $('#totalWords');
   const discountEl = $('#discount'), templateEl = $('#template');
   const genBtn = $('#gen'), linkA = $('#link');
+  let quoteTimer = null, quoteSeq = 0;
 
   const fmt = n => (Number(n)||0).toLocaleString('ru-RU');
   function toast(msg){ const t=$('#toast'); t.textContent=msg; t.hidden=false; setTimeout(()=>t.hidden=true,2500); }
@@ -58,10 +59,7 @@
     const qty  = Math.max(1, Number(tr.querySelector('.q').value||1));
     const unit = Math.max(0, Number(tr.querySelector('.u').value||0));
     const dp   = Math.max(0, Number(tr.querySelector('.d').value||0));
-    const gross = qty * unit;
-    let after = gross;
-    if (dp>0) after = Math.round(gross * (1 - dp/100));
-    return {name, qty, unit, dp, gross, after};
+    return {name, qty, unit, dp};
   }
 
   function products(){
@@ -79,47 +77,44 @@
   }
 
   function recalc(){
-    let sumGross = 0, sumAfter = 0, idx = 1;
+    let idx = 1;
     tbody.querySelectorAll('tr').forEach(tr=>{
-      const r = rowData(tr);
-      tr.querySelector('.s').textContent = fmt(r.after);
       tr.querySelector('.num').textContent = idx++; 
-      sumGross += r.gross;
-      sumAfter += r.after;
     });
-    const globalDisc = Number(discountEl.value||0);
-    const total = Math.max(sumAfter - globalDisc, 0);
     cntEl.textContent = tbody.querySelectorAll('tr').length;
-    sumEl.textContent = fmt(sumGross);
-    totalEl.textContent = fmt(total);
-    wordsEl.textContent = toWords(total);
     linkA.style.display='none';
+    scheduleQuote();
   }
 
-  function morph(n,f1,f2,f5){ n=Math.abs(n)%100; const n1=n%10;
-    if(n>10&&n<20) return f5; if(n1>1&&n1<5) return f2; if(n1==1) return f1; return f5; }
-  function toWords(num){
-    if(num===0) return 'ноль рублей';
-    const w1=['','один','два','три','четыре','пять','шесть','семь','восемь','девять'];
-    const w1f=['','одна','две','три','четыре','пять','шесть','семь','восемь','девять'];
-    const w10=['десять','одиннадцать','двенадцать','тринадцать','четырнадцать','пятнадцать','шестнадцать','семнадцать','восемнадцать','девятнадцать'];
-    const w2=['','десять','двадцать','тридцать','сорок','пятьдесят','шестьдесят','семьдесят','восемьдесят','девяносто'];
-    const w3=['','сто','двести','триста','четыреста','пятьсот','шестьсот','семьсот','восемьсот','девятьсот'];
-    const units=[['рубль','рубля','рублей',0],['тысяча','тысячи','тысяч',1],['миллион','миллиона','миллионов',0]];
-    let parts=[], i=0;
-    while(num>0 && i<units.length){
-      const n = num%1000; if(n){
-        const g=units[i][3]; const s=[];
-        s.push(w3[Math.trunc(n/100)]);
-        const t=n%100;
-        if(t>=10 && t<20){ s.push(w10[t-10]); }
-        else{ s.push(w2[Math.trunc(t/10)]); s.push((g?w1f:w1)[t%10]); }
-        s.push(morph(n,units[i][0],units[i][1],units[i][2]));
-        parts.push(s.filter(Boolean).join(' '));
-      }
-      num = Math.trunc(num/1000); i++;
-    }
-    return parts.reverse().join(' ').trim();
+  function scheduleQuote(){
+    clearTimeout(quoteTimer);
+    quoteTimer = setTimeout(loadQuote, 200);
+  }
+
+  async function loadQuote(){
+    const seq = ++quoteSeq;
+    try{
+      const r = await fetch(API_BASE + '/quote.php', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({products: products(), discount: Number(discountEl.value||0)})
+      });
+      const j = await r.json();
+      if(seq !== quoteSeq || !r.ok) return;
+      renderQuote(j);
+    }catch(_){}
+  }
+
+  function renderQuote(q){
+    const rows = q.rows || [];
+    tbody.querySelectorAll('tr').forEach((tr, i)=>{
+      const row = rows[i] || {};
+      tr.querySelector('.s').textContent = fmt(row.net_sum || 0);
+    });
+    cntEl.textContent = q.count || 0;
+    sumEl.textContent = fmt(q.sum_gross || 0);
+    totalEl.textContent = fmt(q.total || 0);
+    wordsEl.textContent = q.total_words || 'ноль рублей';
   }
 
   $('#add').onclick = ()=> addRow();

@@ -14,7 +14,17 @@ final class FrontendApiPathTest extends TestCase
         $this->assertStringContainsString("const API_BASE = '/api';", $script);
         $this->assertStringContainsString("fetch(API_BASE + '/generate.php'", $script);
         $this->assertStringContainsString("fetch(API_BASE + '/prefill.php?lead_id='", $script);
+        $this->assertStringContainsString("fetch(API_BASE + '/quote.php'", $script);
         $this->assertStringNotContainsString('/api/generate.php/api/', $script);
         $this->assertStringNotContainsString("const API = '/api/generate.php';", $script);
+    }
+
+    public function testFrontendDoesNotDuplicateRubleWordsFormatter(): void
+    {
+        $script = file_get_contents(__DIR__ . '/../public/app.js');
+
+        $this->assertIsString($script);
+        $this->assertStringNotContainsString('function toWords', $script);
+        $this->assertStringNotContainsString('function morph', $script);
     }
 }
