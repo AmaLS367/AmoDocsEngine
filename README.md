@@ -13,7 +13,7 @@
   <img alt="PHP" src="https://img.shields.io/badge/PHP-7.4%2B-777bb4?style=for-the-badge&logo=php&logoColor=white">
   <img alt="PhpWord" src="https://img.shields.io/badge/PhpWord-DOCX-21759b?style=for-the-badge">
   <img alt="amoCRM" src="https://img.shields.io/badge/amoCRM-OAuth-18a058?style=for-the-badge">
-  <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/License-Proprietary-lightgrey?style=for-the-badge"></a>
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/License-Apache--2.0-lightgrey?style=for-the-badge"></a>
 </p>
 
 <p align="center">
@@ -21,7 +21,8 @@
   <a href="docs/ru/index.md">🇷🇺 Документация</a> ·
   <a href="docs/en/api.md">🔌 API</a> ·
   <a href="SECURITY.md">🛡️ Security</a> ·
-  <a href="CONTRIBUTING.md">🤝 Contributing</a>
+  <a href="CONTRIBUTING.md">🤝 Contributing</a> ·
+  <a href="CODE_OF_CONDUCT.md">📜 Code of Conduct</a>
 </p>
 
 ---
@@ -129,6 +130,7 @@ Current suite covers URL routing, quote calculations, amoCRM client behavior, fi
 - **Description:** amoCRM document generation engine with OAuth, DOCX templates, secure browser flow, quote preview, and shared-hosting deployment.
 - **Topics:** `php`, `amocrm`, `docx`, `phpword`, `crm`, `document-generation`.
 - **Social preview:** upload `docs/assets/social-preview.png` in GitHub repository settings.
+- **Community:** keep [Security](SECURITY.md), [Contributing](CONTRIBUTING.md), [Code of Conduct](CODE_OF_CONDUCT.md), and GitHub issue templates visible.
 
 ---
 
