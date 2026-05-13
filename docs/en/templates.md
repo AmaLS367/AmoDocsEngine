@@ -1,0 +1,91 @@
+<h1 align="center">🧾 Word Templates</h1>
+
+<p align="center">
+  <strong>Design DOCX templates, placeholders, table rows, and new document types.</strong>
+</p>
+
+<p align="center">
+  <a href="index.md">📚 Docs</a> ·
+  <a href="api.md">🔌 API</a> ·
+  <a href="operations.md">🛠️ Operations</a> ·
+  <a href="../ru/templates.md">🇷🇺 RU</a>
+</p>
+
+---
+
+## 🧭 Template Map
+
+| Template key | DOCX file | Purpose |
+| --- | --- | --- |
+| `order` | `order_template.docx` | Work order with service rows |
+| `act` | `act_template.docx` | Acceptance/transfer act |
+| custom | configured in `templates` | Any added document type |
+
+Templates live in `templates/` and are rendered through PhpWord `TemplateProcessor`.
+
+## Built-in Templates
+
+- `order` → `order_template.docx`
+- `act` → `act_template.docx`
+
+## Common Placeholders
+
+- `${Номер}`
+- `${Дата}`
+- `${Телефон}`
+- `${Марка}`
+- `${Модель}`
+- `${VIN}`
+- `${Год выпуска}`
+- `${Фамилия}`
+- `${Имя}`
+- `${Отчество}`
+- `${Итого}`
+- `${Скидка}`
+- `${Всего к оплате}`
+- `${Количество наименований}`
+- `${Сумма прописью}`
+
+## Order Table Rows
+
+The order template clones rows by `row_num` and fills:
+
+- `${row_num}`
+- `${услуга_название}`
+- `${row_qty}`
+- `${row_price}`
+- `${row_discount}`
+- `${row_sum}`
+
+## Adding a Template
+
+1. Add a `.docx` file to `templates/`.
+2. Add a key in `config/config.php` under `templates`.
+3. Send that key as `template` from the UI or API client.
+
+Example:
+
+```php
+'templates' => [
+    'order' => 'order_template.docx',
+    'act' => 'act_template.docx',
+    'invoice' => 'invoice_template.docx',
+],
+```
+
+Then call:
+
+```json
+{"template": "invoice"}
+```
+
+## Template Safety Checklist
+
+- Keep placeholder names exact.
+- Keep table row placeholders inside the row that should be cloned.
+- Do not rename existing keys unless the backend service is updated.
+- Upload templates as `.docx`, not `.doc`.
+
+---
+
+**Next:** [Operations](operations.md) · **Back:** [API](api.md)

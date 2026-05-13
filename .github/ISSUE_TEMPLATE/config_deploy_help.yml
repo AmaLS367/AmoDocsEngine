@@ -1,0 +1,42 @@
+name: "⚙️ Config or deploy help"
+description: Ask for help with sanitized configuration or hosting setup.
+title: "support: "
+labels: ["support", "configuration"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not upload `config/config.php`, `config/token.json`, `.env`, real tokens, or customer data.
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      options:
+        - Shared hosting
+        - VPS
+        - Local Windows
+        - Local Linux/macOS
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to configure or deploy?
+    validations:
+      required: true
+  - type: textarea
+    id: sanitized-config
+    attributes:
+      label: Sanitized config excerpt
+      description: Replace all secrets, domains, tokens, and customer values.
+      render: php
+  - type: textarea
+    id: checks
+    attributes:
+      label: Checks already run
+      placeholder: |
+        - composer install
+        - vendor/bin/phpunit
+        - opened public/ui.html?lead_id=...

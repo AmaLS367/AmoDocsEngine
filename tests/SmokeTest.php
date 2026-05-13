@@ -11,6 +11,7 @@ final class SmokeTest extends TestCase
     {
         $this->assertFileExists(__DIR__ . '/../api/generate.php');
         $this->assertFileExists(__DIR__ . '/../api/prefill.php');
+        $this->assertFileExists(__DIR__ . '/../api/quote.php');
         $this->assertFileExists(__DIR__ . '/../oauth.php');
     }
 

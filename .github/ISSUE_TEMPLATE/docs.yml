@@ -1,0 +1,23 @@
+name: "📚 Documentation issue"
+description: Report unclear or outdated docs.
+title: "docs: "
+labels: ["documentation"]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: Link or path to the affected doc page.
+      placeholder: docs/en/configuration.md
+    validations:
+      required: true
+  - type: textarea
+    id: issue
+    attributes:
+      label: What is unclear or outdated?
+    validations:
+      required: true
+  - type: textarea
+    id: suggested
+    attributes:
+      label: Suggested wording or structure
