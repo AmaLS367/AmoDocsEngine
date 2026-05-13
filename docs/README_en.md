@@ -61,14 +61,9 @@ php composer.phar install
    chmod -R 775 documents logs data
    # or 777 in environments without proper web process ownership
    ```
-3. In `public/app.js` **update the API base URL**:
+3. In `public/app.js` update `API_BASE` only if the UI and API are not served from the same host/path:
    ```js
-   // was:
-   const API = 'https://apiport.ru/amo_doc_generator';
-   // should point to your domain/path, e.g.:
-   const API = 'https://<your-domain>/<path>/amo_doc_generator';
-   // or use a relative path if UI and API are on the same host:
-   // const API = '/amo_doc_generator';
+   const API_BASE = '/api';
    ```
 4. Verify that `https://<your-domain>/<path>/amo_doc_generator/public/ui.html` opens without browser errors.
 
@@ -85,6 +80,7 @@ php composer.phar install
 - Save the generated **Client ID** and **Client Secret**.
 
 ### 4.2. Update `config/config.php`
+Copy `config/config.example.php` to `config/config.php` and fill the values:
 ```php
 return [
   'client_id'     => 'YOUR_CLIENT_ID',
@@ -96,6 +92,27 @@ return [
   'template_path' => __DIR__.'/../templates/',
   'document_path' => __DIR__.'/../documents/',
   'temp_data_path'=> __DIR__.'/../data/',
+
+  'templates' => [
+    'order' => 'order_template.docx',
+    'act' => 'act_template.docx',
+  ],
+
+  'amo_fields' => [
+    'last_name' => 111111,
+    'first_name' => 222222,
+    'middle_name' => 333333,
+    'car_make' => 444444,
+    'car_model' => 555555,
+    'vin' => 666666,
+    'year' => 777777,
+  ],
+
+  'security' => [
+    'generate_auth_mode' => 'browser_token',
+    'generate_token_ttl_seconds' => 1800,
+    'hmac_secret' => '',
+  ],
 
   'prefill_ttl_days' => 5,
 ];
@@ -134,19 +151,22 @@ Ways to embed:
 5. Choose template: `order` (work order) or `act` (act).
 6. Click **Generate**. The response will contain a `.docx` link from `documents/`.
 
-Totals and amounts in words are calculated both on frontend and backend.
+Totals and amounts in words are calculated on the backend through `api/quote.php`; the frontend only renders the returned values.
 
 ---
 
 ## 7) API
 
 ### `POST /api/generate.php`
+Requires either `generate_token` returned by `GET /api/prefill.php?lead_id=<id>` or a valid `X-Signature` HMAC when `generate_auth_mode` is `hmac`.
+
 Input (JSON):
 ```json
 {
   "lead_id": 123456,
   "template": "order",          // or "act"
   "discount": 500,              // total discount in rubles
+  "generate_token": "...",
   "products": [
     {
       "name": "Diagnostics",
@@ -161,18 +181,22 @@ Output:
 ```json
 { "url": "https://<domain>/<path>/amo_doc_generator/documents/<file>.docx" }
 ```
-Error codes: `400 Bad JSON/Invalid lead_id or products`, `500 Internal Server Error`.
+Error codes: `400 Bad JSON/Invalid lead_id or products/Unknown template`, `401 Unauthorized`, `500 Internal Server Error`.
 
 ### `GET /api/prefill.php?lead_id=<id>`
-Returns last saved form state for the deal:
+Returns last saved form state and a server-issued generation token for the deal:
 ```json
 {
   "template": "order",
   "discount": 0,
   "products": [ ... ],
-  "saved_at": 1710000000
+  "saved_at": 1710000000,
+  "generate_token": "..."
 }
 ```
+
+### `POST /api/quote.php`
+Returns backend-calculated rows, totals and `total_words` for the UI preview.
 
 ---
 
@@ -183,11 +207,11 @@ Returns last saved form state for the deal:
 - Linked contact (if exists).
 
 Used fields:
-- Name: priority is custom fields **"Last Name"**, **"First Name"**, **"Middle Name"** on the deal; otherwise from contact name.
-- Phone: `PHONE` field of contact.
-- Vehicle: **"Make"**, **"Model"**, **"VIN"**, **"Year of manufacture"** — must match **exact custom field names**.
+- Name: configured deal custom field IDs `last_name`, `first_name`, `middle_name`; otherwise from contact name.
+- Phone: stable amoCRM contact field code `PHONE`.
+- Vehicle: configured deal custom field IDs `car_make`, `car_model`, `vin`, `year`.
 
-> If your field names differ, update mapping in `api/generate.php` (`setValue(...)` and `$getCF` function).
+Field names in amoCRM may be renamed without breaking generation as long as the IDs in `config/config.php` stay correct.
 
 ---
 
@@ -247,9 +271,9 @@ Checklist:
 1. Copy project to target hosting, grant write permissions to `documents/`, `logs/`, `data/`.
 2. Run `composer install`.
 3. Create **new private integration** in target amoCRM account.
-4. Update `config/config.php` (`client_id`, `client_secret`, `redirect_uri`, `base_domain`, `subdomain`).
+4. Update `config/config.php` (`client_id`, `client_secret`, `redirect_uri`, `base_domain`, `subdomain`, `amo_fields`, `security`).
 5. Authorize and complete **section 4.3** to create `config/token.json`.
-6. Update `public/app.js` → `API` constant to new domain/path.
+6. Update `public/app.js` → `API_BASE` only if UI and API are not served together.
 7. Test UI at `public/ui.html?lead_id=<id>` and document generation.
 8. Adjust custom field mapping if necessary (section 8).
 
@@ -266,8 +290,8 @@ Checklist:
 ## 13) Known limitations
 
 - Global discount — **in rubles**, row discount — **in percent**.
-- Templates are fixed: `order` and `act`.
-- Exact custom field names are expected (see section 8).
+- Built-in templates are `order` and `act`; additional templates can be added through `config.php`.
+- Exact custom field IDs are expected in `config/config.php` (see section 8).
 
 ---
 
@@ -280,8 +304,8 @@ php -m | grep -E 'zip|xml|mbstring|curl|json'
 # 2) Check UI
 open https://<domain>/<path>/amo_doc_generator/public/ui.html?lead_id=TEST_ID
 
-# 3) Test API
-curl -X POST https://<domain>/<path>/amo_doc_generator/api/generate.php   -H 'Content-Type: application/json'   -d '{"lead_id":123456,"template":"order","discount":0,"products":[{"name":"Test","unit_price":1000,"qty":1,"discount_percent":0}]}'
+# 3) Test backend quote calculation
+curl -X POST https://<domain>/<path>/amo_doc_generator/api/quote.php   -H 'Content-Type: application/json'   -d '{"discount":0,"products":[{"name":"Test","unit_price":1000,"qty":1,"discount_percent":0}]}'
 
-# Expected {"url":"https://.../documents/<file>.docx"}
+# Expected totals JSON with "total":1000
 ```

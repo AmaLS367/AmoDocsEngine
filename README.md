@@ -4,9 +4,10 @@ This repository contains a lightweight PHP integration that pulls amoCRM deal/co
 
 ## Features
 
-- amoCRM OAuth flow handled via `oauth.php`, refresh logic built into `api/generate.php`.
+- amoCRM OAuth flow handled via `oauth.php`, refresh logic isolated in `AmoCrmClient`.
 - PhpWord `TemplateProcessor` replaces all placeholders inside `templates/*.docx`.
 - Prefill cache (`api/prefill.php`) stores the last list of products per deal to speed up repeat document creation.
+- UI totals are calculated by `POST /api/quote.php`, so frontend and generated documents use the same backend logic.
 - Filesystem layout suits FTP/shared hosting: generated docs live in `documents/`, cached data in `data/`, logs in `logs/`.
 
 ## Project structure
@@ -26,17 +27,18 @@ This repository contains a lightweight PHP integration that pulls amoCRM deal/co
 
 ## Configuration checklist
 
-1. Edit `config/config.php`: fill amoCRM `client_id`, `client_secret`, `redirect_uri`, `base_domain`, paths if you deploy outside repo root, and optionally `hmac_secret`.
+1. Copy `config/config.example.php` to ignored `config/config.php`, then fill amoCRM `client_id`, `client_secret`, `redirect_uri`, `base_domain`, `amo_fields` IDs, paths, and security settings.
 2. Run the amoCRM auth flow (`oauth.php?code=...`) to create `config/token.json`.
-3. Ensure `public/app.js` points to your domain (update the `API` constant if necessary).
+3. If UI and API are not served from the same host/path, update `API_BASE` in `public/app.js`.
 4. Verify that `public/ui.html?lead_id=<ID>` opens and hits your API endpoints.
 
 ## Deployment / usage
 
 - Upload the repo to hosting, keep `config/`, `documents/`, `logs/`, `data/` out of public reach or tighten web-server rules.
 - Serve the UI from `public/` or link `ui.html` inside your amoCRM widget with `lead_id` query arg.
-- `POST /api/generate.php` expects `lead_id`, `template`, `discount`, `products[]`; it downloads deal/contact details, fills the template, saves `.docx` to `documents/` and posts a note back to amoCRM.
-- `GET /api/prefill.php?lead_id=` returns cached payload so the UI can restore the previous basket.
+- `POST /api/generate.php` expects `lead_id`, `template`, `discount`, `products[]`, and either a server-issued `generate_token` from prefill or a valid HMAC signature in HMAC mode.
+- `POST /api/quote.php` returns backend-calculated rows, totals, and amount in words for the UI preview.
+- `GET /api/prefill.php?lead_id=` returns cached payload plus `generate_token` so the UI can restore the previous basket and submit generation safely.
 
 ## Local run & tests
 

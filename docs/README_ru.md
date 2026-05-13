@@ -61,14 +61,9 @@ php composer.phar install
    chmod -R 775 documents logs data
    # при необходимости 777 в окружениях без корректных владельцев веб-процесса
    ```
-3. В `public/app.js` **обновите базовый URL API**:
+3. В `public/app.js` обновляйте `API_BASE` только если UI и API находятся на разных host/path:
    ```js
-   // было:
-   const API = 'https://apiport.ru/amo_doc_generator';
-   // должно указывать на ваш домен/путь, например:
-   const API = 'https://<ваш-домен>/<путь>/amo_doc_generator';
-   // или используйте относительный путь, если UI и API на одном хосте:
-   // const API = '/amo_doc_generator';
+   const API_BASE = '/api';
    ```
 4. Убедитесь, что по адресу `https://<ваш-домен>/<путь>/amo_doc_generator/public/ui.html` UI открывается без ошибок браузера.
 
@@ -85,6 +80,7 @@ php composer.phar install
 - Сохраните выданные **Client ID** и **Client Secret**.
 
 ### 4.2. Пропишите настройки в `config/config.php`
+Скопируйте `config/config.example.php` в `config/config.php` и заполните значения:
 ```php
 return [
   'client_id'     => 'ВАШ_CLIENT_ID',
@@ -96,6 +92,27 @@ return [
   'template_path' => __DIR__.'/../templates/',
   'document_path' => __DIR__.'/../documents/',
   'temp_data_path'=> __DIR__.'/../data/',
+
+  'templates' => [
+    'order' => 'order_template.docx',
+    'act' => 'act_template.docx',
+  ],
+
+  'amo_fields' => [
+    'last_name' => 111111,
+    'first_name' => 222222,
+    'middle_name' => 333333,
+    'car_make' => 444444,
+    'car_model' => 555555,
+    'vin' => 666666,
+    'year' => 777777,
+  ],
+
+  'security' => [
+    'generate_auth_mode' => 'browser_token',
+    'generate_token_ttl_seconds' => 1800,
+    'hmac_secret' => '',
+  ],
 
   'prefill_ttl_days' => 5,
 ];
@@ -134,19 +151,22 @@ https://<ваш-домен>/<путь>/amo_doc_generator/public/ui.html?lead_id=
 5. Выберите **шаблон**: `order` (заказ-наряд) или `act` (акт).
 6. Нажмите **«Сформировать»**. В ответ вернется ссылка на `.docx` в `documents/`.
 
-Итоги и суммы считаются на фронтенде и продублированы на бэкенде. Число прописью формируется на обеих сторонах.
+Итоги и сумма прописью считаются на backend через `api/quote.php`; фронтенд только отображает возвращенные значения.
 
 ---
 
 ## 7) API
 
 ### `POST /api/generate.php`
+Требует `generate_token`, полученный из `GET /api/prefill.php?lead_id=<id>`, либо валидную HMAC-подпись `X-Signature` в режиме `generate_auth_mode = hmac`.
+
 Вход (JSON):
 ```json
 {
   "lead_id": 123456,
   "template": "order",          // или "act"
   "discount": 500,              // общая скидка в рублях
+  "generate_token": "...",
   "products": [
     {
       "name": "Диагностика",
@@ -161,18 +181,22 @@ https://<ваш-домен>/<путь>/amo_doc_generator/public/ui.html?lead_id=
 ```json
 { "url": "https://<домен>/<путь>/amo_doc_generator/documents/<файл>.docx" }
 ```
-Коды ошибок: `400 Bad JSON/Invalid lead_id or products`, `500 Internal Server Error`.
+Коды ошибок: `400 Bad JSON/Invalid lead_id or products/Unknown template`, `401 Unauthorized`, `500 Internal Server Error`.
 
 ### `GET /api/prefill.php?lead_id=<id>`
-Возвращает последнее сохраненное состояние формы для сделки:
+Возвращает последнее сохраненное состояние формы и серверный токен генерации для сделки:
 ```json
 {
   "template": "order",
   "discount": 0,
   "products": [ ... ],
-  "saved_at": 1710000000
+  "saved_at": 1710000000,
+  "generate_token": "..."
 }
 ```
+
+### `POST /api/quote.php`
+Возвращает рассчитанные на backend строки, итоги и сумму прописью для предпросмотра UI.
 
 ---
 
@@ -183,11 +207,11 @@ https://<ваш-домен>/<путь>/amo_doc_generator/public/ui.html?lead_id=
 - Связанный контакт (если есть).
 
 Используются значения полей:
-- ФИО: приоритет — кастомные поля **«Фамилия»**, **«Имя»**, **«Отчество»** на сделке; иначе берутся из имени контакта.
-- Телефон: поле `PHONE` у контакта (если найден).
-- Технические поля авто: **«Марка»**, **«Модель»**, **«VIN»**, **«Год выпуска»** — берутся из **кастомных полей** сделки по **точному названию**.
+- ФИО: ID кастомных полей сделки `last_name`, `first_name`, `middle_name`; иначе имя контакта.
+- Телефон: стабильный код поля контакта `PHONE`.
+- Авто: ID кастомных полей сделки `car_make`, `car_model`, `vin`, `year`.
 
-> Если у вас другие названия полей, скорректируйте маппинг в `api/generate.php` (поиском `setValue('Марка'|...)` и функцией `$getCF`).
+Поля в amoCRM можно переименовывать, если ID в `config/config.php` остаются корректными.
 
 ---
 
@@ -247,9 +271,9 @@ ${row_sum#1}
 1. Скопировать проект на целевой хостинг, выдать права на `documents/`, `logs/`, `data/`.
 2. Выполнить `composer install`.
 3. Создать **новую приватную интеграцию** в целевом аккаунте amoCRM.
-4. Обновить `config/config.php` (`client_id`, `client_secret`, `redirect_uri`, `base_domain`, `subdomain`).
+4. Обновить `config/config.php` (`client_id`, `client_secret`, `redirect_uri`, `base_domain`, `subdomain`, `amo_fields`, `security`).
 5. Открыть ссылку авторизации и пройти **раздел 4.3**, чтобы записался `config/token.json`.
-6. Обновить `public/app.js` → константа `API` под новый домен/путь.
+6. Обновить `public/app.js` → `API_BASE` только если UI и API не раздаются вместе.
 7. Проверить открытие UI по `public/ui.html?lead_id=<id>` и генерацию документов.
 8. При необходимости адаптировать маппинг кастомных полей (раздел 8).
 
@@ -266,8 +290,8 @@ ${row_sum#1}
 ## 13) Известные ограничения
 
 - Глобальная скидка — **в рублях**, скидка по строкам — **в процентах**.
-- Шаблоны фиксированы: `order` и `act`.
-- Ожидаются конкретные названия кастомных полей (см. раздел 8).
+- Встроенные шаблоны: `order` и `act`; дополнительные шаблоны добавляются через `config.php`.
+- Ожидаются конкретные ID кастомных полей в `config/config.php` (см. раздел 8).
 
 ---
 
@@ -280,8 +304,8 @@ php -m | grep -E 'zip|xml|mbstring|curl|json'
 # 2) Проверка UI
 open https://<домен>/<путь>/amo_doc_generator/public/ui.html?lead_id=TEST_ID
 
-# 3) Тест API (пример)
-curl -X POST https://<домен>/<путь>/amo_doc_generator/api/generate.php   -H 'Content-Type: application/json'   -d '{"lead_id":123456,"template":"order","discount":0,"products":[{"name":"Тест","unit_price":1000,"qty":1,"discount_percent":0}]}'
+# 3) Тест backend-расчета
+curl -X POST https://<домен>/<путь>/amo_doc_generator/api/quote.php   -H 'Content-Type: application/json'   -d '{"discount":0,"products":[{"name":"Тест","unit_price":1000,"qty":1,"discount_percent":0}]}'
 
-# Ожидается {"url":"https://.../documents/<файл>.docx"}
+# Ожидается JSON с итогом "total":1000
 ```
