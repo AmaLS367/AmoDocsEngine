@@ -11,6 +11,8 @@
 - `subdomain`
 - `token_path`
 
+Use the full amoCRM domain in `base_domain`, for example `https://example.amocrm.ru`.
+
 ## Field Mapping
 
 Deal custom fields are mapped by amoCRM field ID, not by display name:
@@ -43,6 +45,28 @@ HMAC mode is for trusted server-to-server clients only:
 ],
 ```
 
+Supported modes:
+
+| Mode | Use case |
+| --- | --- |
+| `browser_token` | Default UI flow. `prefill.php` issues `generate_token`; `generate.php` validates it. |
+| `hmac` | Trusted backend integration signs the raw request body with `X-Signature`. |
+| `either` | Transitional mode for clients that may use browser token or HMAC. |
+
+Do not put an HMAC secret into browser JavaScript. If `hmac` mode is enabled, `hmac_secret` must be non-empty.
+
+## Runtime Paths
+
+| Key | Purpose |
+| --- | --- |
+| `template_path` | Source `.docx` templates |
+| `document_path` | Generated document files |
+| `public_documents_url` | Public URL prefix for generated documents |
+| `temp_data_path` | Runtime state root |
+| `cache_path` | Prefill cache |
+| `logs_path` | JSON logs |
+| `token_path` | amoCRM OAuth tokens |
+
 ## Templates
 
 ```php
@@ -53,5 +77,16 @@ HMAC mode is for trusted server-to-server clients only:
 ```
 
 Add another key here to expose a new template through the registry.
+
+## Do Not Commit
+
+These files must stay out of git:
+
+- `config/config.php`
+- `config/token.json`
+- `.env`
+- `data/`
+- `documents/`
+- `logs/`
 
 Next: [API](api.md)

@@ -31,6 +31,29 @@ Calculates rows, totals, and amount in words on the backend.
 
 Returns `rows`, `sum_gross`, `sum_after`, `discount`, `total`, `count`, and `total_words`.
 
+Example response:
+
+```json
+{
+  "rows": [
+    {
+      "index": 1,
+      "name": "Diagnostics",
+      "qty": 1,
+      "unit_price": 1500,
+      "discount_label": "-",
+      "net_sum": 1500
+    }
+  ],
+  "sum_gross": 1500,
+  "sum_after": 1500,
+  "discount": 500,
+  "total": 1000,
+  "count": 1,
+  "total_words": "одна тысяча рублей"
+}
+```
+
 ## `POST /api/generate.php`
 
 Generates the document and writes a note back to amoCRM.
@@ -54,5 +77,15 @@ Response:
 ```
 
 Error codes: `400` for invalid input or unknown templates, `401` for missing/invalid auth, `500` for internal errors.
+
+## HMAC Server Client
+
+When `generate_auth_mode` is `hmac`, send `X-Signature` as:
+
+```text
+hash_hmac('sha256', raw_json_body, hmac_secret)
+```
+
+Use exactly the raw body bytes sent to `generate.php`. Do not sign a re-encoded JSON object.
 
 Next: [Templates](templates.md)

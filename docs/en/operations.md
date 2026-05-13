@@ -8,6 +8,8 @@
 - `documents/` stores generated DOCX files.
 - `logs/generate.log` stores JSON error events.
 
+Keep `config/`, `data/`, `documents/`, and `logs/` outside direct public access when possible. If hosting exposes them, disable directory listing and block sensitive files.
+
 ## Smoke Test
 
 ```bash
@@ -31,6 +33,19 @@ On Windows:
 | Empty vehicle fields | `amo_fields` IDs match the deal custom fields |
 | Template not found | Template key exists and file is present in `templates/` |
 | Document URL broken | `public_documents_url` matches hosting path |
+
+## Log Reading
+
+`logs/generate.log` is append-only JSON lines. Typical entries contain:
+
+```json
+{
+  "EX": "Template not found",
+  "line": 123
+}
+```
+
+Use the error message to decide whether the failure is template, amoCRM, security, or filesystem related.
 
 ## Migration
 

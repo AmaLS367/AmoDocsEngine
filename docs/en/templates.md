@@ -42,4 +42,27 @@ The order template clones rows by `row_num` and fills:
 2. Add a key in `config/config.php` under `templates`.
 3. Send that key as `template` from the UI or API client.
 
+Example:
+
+```php
+'templates' => [
+    'order' => 'order_template.docx',
+    'act' => 'act_template.docx',
+    'invoice' => 'invoice_template.docx',
+],
+```
+
+Then call:
+
+```json
+{"template": "invoice"}
+```
+
+## Template Safety Checklist
+
+- Keep placeholder names exact.
+- Keep table row placeholders inside the row that should be cloned.
+- Do not rename existing keys unless the backend service is updated.
+- Upload templates as `.docx`, not `.doc`.
+
 Next: [Operations](operations.md)
