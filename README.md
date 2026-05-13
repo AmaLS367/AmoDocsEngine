@@ -120,6 +120,7 @@ flowchart LR
 ## 🧪 Verification
 
 ```powershell
+composer install
 .\vendor\bin\phpunit
 ```
 
