@@ -10,6 +10,8 @@ $FILE_MODE = $config['file_mode'];
 use AmoDocGenerator\DocumentDataBuilder;
 use AmoDocGenerator\AmoCrm\AmoCrmClient;
 use AmoDocGenerator\Documents\DocumentGenerationService;
+use AmoDocGenerator\Security\GenerateTokenStore;
+use AmoDocGenerator\Security\RequestAuthenticator;
 
 // Directory setup / Пути к директориям
 $baseDir  = realpath(__DIR__ . '/..');
@@ -24,11 +26,6 @@ $log = function($x) use($LOG){ file_put_contents($LOG, json_encode($x, JSON_UNES
 
 // get input data / получить входные данные
 $raw = file_get_contents('php://input');
-if (!empty($config['hmac_secret'])) {
-    $sig  = $_SERVER['HTTP_X_SIGNATURE'] ?? '';
-    $calc = hash_hmac('sha256', $raw, $config['hmac_secret']);
-    if (!hash_equals($calc, $sig)) { http_response_code(401); echo json_encode(['error'=>'bad signature']); exit; }
-}
 $in  = json_decode($raw, true);
 if (json_last_error() !== JSON_ERROR_NONE) { http_response_code(400); echo json_encode(['error'=>'Bad JSON']); exit; }
 
@@ -38,6 +35,11 @@ $products = is_array($in['products'] ?? null) ? $in['products'] : [];
 $discount = (int)($in['discount'] ?? 0);
 
 if ($leadId <= 0 || !count($products)) { http_response_code(400); echo json_encode(['error'=>'Invalid lead_id or products']); exit; }
+if (!(new RequestAuthenticator($config, GenerateTokenStore::fromConfig($config)))->isAuthorized((string)$raw, $in, $_SERVER)) {
+    http_response_code(401);
+    echo json_encode(['error'=>'Unauthorized'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
 
 // Load amoCRM client / Загрузка клиента amoCRM
 $tokenPath = $config['token_path'];

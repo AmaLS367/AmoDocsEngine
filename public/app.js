@@ -9,6 +9,7 @@
   const discountEl = $('#discount'), templateEl = $('#template');
   const genBtn = $('#gen'), linkA = $('#link');
   let quoteTimer = null, quoteSeq = 0;
+  let generateToken = '';
 
   const fmt = n => (Number(n)||0).toLocaleString('ru-RU');
   function toast(msg){ const t=$('#toast'); t.textContent=msg; t.hidden=false; setTimeout(()=>t.hidden=true,2500); }
@@ -123,7 +124,8 @@
       lead_id: leadId,
       template: templateEl.value,
       products: products(),
-      discount: Number(discountEl.value||0)
+      discount: Number(discountEl.value||0),
+      generate_token: generateToken
     };
     if(!body.products.length){ toast('Добавьте хотя бы одну позицию'); return; }
     genBtn.disabled = true; genBtn.textContent = 'Генерирую…';
@@ -146,6 +148,7 @@
     try{
       const r = await fetch(API_BASE + '/prefill.php?lead_id='+leadId);
       const j = await r.json();
+      generateToken = j.generate_token || '';
       (j.products||[]).forEach(p=>{
         addRow(p.name||'', p.unit_price||p.price||0, p.qty||p.quantity||1, p.discount_percent||0);
       });

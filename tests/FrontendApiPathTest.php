@@ -15,6 +15,7 @@ final class FrontendApiPathTest extends TestCase
         $this->assertStringContainsString("fetch(API_BASE + '/generate.php'", $script);
         $this->assertStringContainsString("fetch(API_BASE + '/prefill.php?lead_id='", $script);
         $this->assertStringContainsString("fetch(API_BASE + '/quote.php'", $script);
+        $this->assertStringContainsString('generate_token: generateToken', $script);
         $this->assertStringNotContainsString('/api/generate.php/api/', $script);
         $this->assertStringNotContainsString("const API = '/api/generate.php';", $script);
     }
