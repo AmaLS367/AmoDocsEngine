@@ -1,4 +1,4 @@
-name: Config or deploy help
+name: "⚙️ Config or deploy help"
 description: Ask for help with sanitized configuration or hosting setup.
 title: "support: "
 labels: ["support", "configuration"]

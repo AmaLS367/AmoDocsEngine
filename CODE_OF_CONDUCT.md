@@ -1,25 +1,47 @@
-# Code of Conduct
+<h1 align="center">📜 Code of Conduct</h1>
 
-## Our Standard
+<p align="center">
+  <strong>Clear, respectful, engineering-focused collaboration for AmoDocsEngine.</strong>
+</p>
 
-This project expects respectful, practical, and professional collaboration. Be direct, but keep feedback focused on the work: code, docs, tests, security, and maintainability.
+<p align="center">
+  <a href="README.md">🏠 README</a> ·
+  <a href="CONTRIBUTING.md">🤝 Contributing</a> ·
+  <a href="SECURITY.md">🛡️ Security</a> ·
+  <a href="docs/en/index.md">📚 Docs</a>
+</p>
 
-Examples of good behavior:
+---
 
-- Use clear technical arguments and reproducible evidence.
+## ✅ Our Standard
+
+This project expects direct, practical, and professional collaboration. Keep feedback focused on the work: code, docs, tests, security, deployment behavior, and maintainability.
+
+| Expected | Why it matters |
+| --- | --- |
+| Use reproducible evidence | Maintainers can verify and fix issues faster |
+| Ask clear questions | Ambiguity is cheaper to resolve early |
+| Stay scoped to the project | Issues and PRs remain useful |
+| Protect secrets and CRM data | Public repositories are not safe for private data |
+
+## 👍 Good Behavior
+
+- Use clear technical arguments.
+- Provide sanitized reproduction steps.
 - Assume good intent when asking for clarification.
-- Keep issue and PR discussions scoped to the project.
-- Respect security boundaries and do not expose private credentials.
+- Respect security boundaries.
+- Keep issue and PR threads focused.
 
-Unacceptable behavior:
+## 🚫 Unacceptable Behavior
 
 - Harassment, insults, threats, or discriminatory language.
-- Publishing another person's private information.
-- Sharing secrets, tokens, customer data, or private CRM data in public issues.
+- Publishing private information.
+- Sharing tokens, secrets, customer data, or private CRM data.
 - Repeated off-topic comments that make maintenance harder.
+- Posting exploit details in public issues.
 
-## Enforcement
+## 🛠️ Enforcement
 
 Maintainers may edit, hide, or remove comments and issues that violate this code. Repeated or severe violations may lead to blocking from the repository.
 
-For security-sensitive concerns, follow [SECURITY.md](SECURITY.md) instead of opening a public issue.
+Security-sensitive concerns must follow [SECURITY.md](SECURITY.md) instead of public issue discussion.
