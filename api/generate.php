@@ -8,6 +8,7 @@ $DIR_MODE  = $config['dir_mode'];
 $FILE_MODE = $config['file_mode'];
 
 use AmoDocGenerator\DocumentDataBuilder;
+use AmoDocGenerator\AmoCrm\AmoCrmClient;
 use AmoDocGenerator\Support\RubleFormatter;
 use PhpOffice\PhpWord\TemplateProcessor;
 
@@ -39,26 +40,9 @@ $discount = (int)($in['discount'] ?? 0);
 
 if ($leadId <= 0 || !count($products)) { http_response_code(400); echo json_encode(['error'=>'Invalid lead_id or products']); exit; }
 
-// Load configuration and tokens / Загрузка конфигурации и токенов
+// Load amoCRM client / Загрузка клиента amoCRM
 $tokenPath = $config['token_path'];
-$tokens    = json_decode(@file_get_contents($tokenPath), true);
-
-function saveTokens(array $t, string $p){ $t['created_at']=time(); file_put_contents($p, json_encode($t, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT)); }
-function refreshToken(array $cfg, array &$t, string $p){
-  $payload = ['client_id'=>$cfg['client_id'],'client_secret'=>$cfg['client_secret'],'grant_type'=>'refresh_token','refresh_token'=>$t['refresh_token']??'','redirect_uri'=>$cfg['redirect_uri']];
-  $ch=curl_init(); curl_setopt_array($ch,[CURLOPT_URL=>rtrim($cfg['base_domain'],'/').'/oauth2/access_token',CURLOPT_RETURNTRANSFER=>true,CURLOPT_HTTPHEADER=>['Content-Type: application/json'],CURLOPT_POST=>true,CURLOPT_POSTFIELDS=>json_encode($payload, JSON_UNESCAPED_UNICODE),CURLOPT_TIMEOUT=>20]); $resp=curl_exec($ch); $code=curl_getinfo($ch,CURLINFO_HTTP_CODE); curl_close($ch);
-  if($code!==200) throw new RuntimeException("REFRESH {$code}: {$resp}");
-  $new=json_decode($resp,true); if(empty($new['access_token'])) throw new RuntimeException('REFRESH: empty access_token');
-  $t=$new; saveTokens($t,$p);
-}
-function amoRequest(string $url, array &$t, array $cfg, string $p): array{
-  $do=function($tk,$u){ $ch=curl_init(); curl_setopt_array($ch,[CURLOPT_URL=>$u,CURLOPT_RETURNTRANSFER=>true,CURLOPT_HTTPHEADER=>["Authorization: Bearer {$tk}"],CURLOPT_TIMEOUT=>25]); $r=curl_exec($ch); $c=curl_getinfo($ch,CURLINFO_HTTP_CODE); curl_close($ch); return [$c,$r]; };
-  [$c,$r]=$do($t['access_token']??'', $url);
-  if($c===401){ refreshToken($cfg,$t,$p); [$c,$r]=$do($t['access_token'],$url); }
-  if($c<200||$c>=300) throw new RuntimeException("AMO {$c}: {$r}");
-  $j=json_decode($r,true); if(!is_array($j)) throw new RuntimeException('AMO bad JSON');
-  return $j;
-}
+$amo = new AmoCrmClient($config, $tokenPath);
 
 if (!function_exists('rublesToWords')) {
     function rublesToWords(int $n): string {
@@ -70,9 +54,9 @@ if (!function_exists('rublesToWords')) {
 // Main logic / Основная логика
 try{
   // token check and refresh / проверка токена и обновление
-  $lead = amoRequest(rtrim($config['base_domain'],'/')."/api/v4/leads/{$leadId}?with=contacts", $tokens, $config, $tokenPath);
+  $lead = $amo->get("/api/v4/leads/{$leadId}?with=contacts");
   $cid  = $lead['_embedded']['contacts'][0]['id'] ?? null;
-  $contact = $cid ? amoRequest(rtrim($config['base_domain'],'/')."/api/v4/contacts/{$cid}", $tokens, $config, $tokenPath) : null;
+  $contact = $cid ? $amo->get("/api/v4/contacts/{$cid}") : null;
 
   $fio = $contact['name'] ?? '';
   $phone = '';
@@ -177,32 +161,23 @@ try{
   $meta = is_file($metaPath) ? json_decode(file_get_contents($metaPath), true) : [];
   $prevNoteId = $meta['note_id'] ?? null;
 
-  $notesBase = rtrim($config['base_domain'],'/') . '/api/v4/leads/notes';
-  $do = function($method,$url,$token,$payload=null){
-    $ch=curl_init(); curl_setopt_array($ch,[
-      CURLOPT_URL=>$url, CURLOPT_CUSTOMREQUEST=>$method, CURLOPT_RETURNTRANSFER=>true,
-      CURLOPT_HTTPHEADER=>array_filter(["Authorization: Bearer {$token}", $payload?"Content-Type: application/json":null]),
-      CURLOPT_POSTFIELDS=>$payload?json_encode($payload, JSON_UNESCAPED_UNICODE):null, CURLOPT_TIMEOUT=>20
-    ]); $resp=curl_exec($ch); $code=curl_getinfo($ch,CURLINFO_HTTP_CODE); curl_close($ch); return [$code,$resp];
-  };
-
   // попытка удалить прошлое примечание (если API разрешит) / attempt to delete the previous note (if API allows)
   if ($prevNoteId) {
-    [$dc,$dr] = $do('DELETE', $notesBase.'/'.(int)$prevNoteId, $tokens['access_token']);
-    // игнорируем ошибки удаления — не критично / ignore delete errors — not critical
+    try {
+      $amo->delete('/api/v4/leads/notes/'.(int)$prevNoteId);
+    } catch (Throwable $ignored) {
+      // игнорируем ошибки удаления — не критично / ignore delete errors — not critical
+    }
   }
 
   // создаём новое примечание / create a new note
   $title = ($template==='act' ? 'Акт приёма-передачи' : 'Заказ-наряд');
   $text  = "{$title} №{$leadId}: {$url}";
-  [$pc,$pr] = $do('POST', $notesBase, $tokens['access_token'], [[
+  $r = $amo->post('/api/v4/leads/notes', [[
     'entity_id'=>(int)$leadId,'entity_type'=>'leads','note_type'=>'common','params'=>['text'=>$text]
   ]]);
-  if ($pc>=200 && $pc<300) {
-    $r = json_decode($pr, true);
-    $newId = $r['_embedded']['notes'][0]['id'] ?? null;
-    if ($newId) { $meta['note_id'] = $newId; file_put_contents($metaPath, json_encode($meta, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT)); }
-  }
+  $newId = $r['_embedded']['notes'][0]['id'] ?? null;
+  if ($newId) { $meta['note_id'] = $newId; file_put_contents($metaPath, json_encode($meta, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT)); }
 
   echo json_encode(['url'=>$url], JSON_UNESCAPED_UNICODE);
 
