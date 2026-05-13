@@ -25,4 +25,46 @@
 
 Browser UI вызывает небольшие PHP endpoints. Backend отвечает за авторизацию запроса, расчет сумм, amoCRM API, генерацию DOCX, кэш префилла, заметки и логи.
 
+```mermaid
+flowchart LR
+    UI["Browser UI"]
+    API["api/ endpoints"]
+    Security["src/Security"]
+    Amo["src/AmoCrm"]
+    Documents["src/Documents"]
+    Storage["src/Storage"]
+    Logs["src/Support"]
+
+    UI --> API
+    API --> Security
+    API --> Amo
+    API --> Documents
+    API --> Storage
+    API --> Logs
+```
+
+## 🔁 Workflow генерации
+
+```mermaid
+sequenceDiagram
+    participant UI as Browser UI
+    participant Prefill as prefill.php
+    participant Quote as quote.php
+    participant Generate as generate.php
+    participant Amo as amoCRM
+    participant Docx as DOCX
+
+    UI->>Prefill: запросить cached state
+    Prefill-->>UI: products + generate_token
+    UI->>Quote: products + discount
+    Quote-->>UI: backend totals
+    UI->>Generate: token + template + products
+    Generate->>Amo: lead/contact
+    Generate->>Docx: render template
+    Generate->>Amo: replace note
+    Generate-->>UI: document URL
+```
+
+Исходники схем: [architecture](../assets/architecture-overview.mmd), [workflow](../assets/workflow-overview.mmd).
+
 Дальше: [Запуск](getting-started.md)

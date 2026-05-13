@@ -25,4 +25,46 @@ English documentation for installing, configuring, operating, and extending AmoD
 
 The browser UI calls small PHP endpoints. Backend services handle request auth, quote calculation, amoCRM API calls, DOCX rendering, prefill cache, notes, and logs.
 
+```mermaid
+flowchart LR
+    UI["Browser UI"]
+    API["api/ endpoints"]
+    Security["src/Security"]
+    Amo["src/AmoCrm"]
+    Documents["src/Documents"]
+    Storage["src/Storage"]
+    Logs["src/Support"]
+
+    UI --> API
+    API --> Security
+    API --> Amo
+    API --> Documents
+    API --> Storage
+    API --> Logs
+```
+
+## 🔁 Generation Workflow
+
+```mermaid
+sequenceDiagram
+    participant UI as Browser UI
+    participant Prefill as prefill.php
+    participant Quote as quote.php
+    participant Generate as generate.php
+    participant Amo as amoCRM
+    participant Docx as DOCX
+
+    UI->>Prefill: request cached state
+    Prefill-->>UI: products + generate_token
+    UI->>Quote: products + discount
+    Quote-->>UI: backend totals
+    UI->>Generate: token + template + products
+    Generate->>Amo: lead/contact
+    Generate->>Docx: render template
+    Generate->>Amo: replace note
+    Generate-->>UI: document URL
+```
+
+Diagram sources: [architecture](../assets/architecture-overview.mmd), [workflow](../assets/workflow-overview.mmd).
+
 Next: [Getting Started](getting-started.md)

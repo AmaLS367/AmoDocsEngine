@@ -85,6 +85,29 @@ sequenceDiagram
     Generate-->>UI: generated document URL
 ```
 
+Reusable diagram sources:
+
+- [Architecture overview](docs/assets/architecture-overview.mmd)
+- [Workflow overview](docs/assets/workflow-overview.mmd)
+
+## 🧱 Module Boundaries
+
+```mermaid
+flowchart LR
+    API["api/<br/>HTTP entrypoints"]
+    Amo["src/AmoCrm/<br/>client, notes, fields"]
+    Docs["src/Documents/<br/>quotes, registry, generation"]
+    Security["src/Security/<br/>tokens, authentication"]
+    Storage["src/Storage/<br/>prefill cache"]
+    Support["src/Support/<br/>formatting, logging"]
+
+    API --> Amo
+    API --> Docs
+    API --> Security
+    API --> Storage
+    API --> Support
+```
+
 ## 🧩 Main Endpoints
 
 | Endpoint | Purpose |
