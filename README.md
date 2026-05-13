@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/social-preview.png" alt="AmoDocsEngine social preview" width="100%">
+  <img src="docs/assets/github-social-preview.png" alt="AmoDocsEngine social preview" width="100%">
 </p>
 
 <h1 align="center">⚡ AmoDocsEngine</h1>
