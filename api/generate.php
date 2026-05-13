@@ -4,25 +4,16 @@ header('Content-Type: application/json; charset=utf-8');
 require __DIR__ . '/../vendor/autoload.php';
 $config = require __DIR__ . '/../config/config.php';
 date_default_timezone_set($config['timezone']);
-$DIR_MODE  = $config['dir_mode'];
-$FILE_MODE = $config['file_mode'];
 
-use AmoDocGenerator\DocumentDataBuilder;
 use AmoDocGenerator\AmoCrm\AmoCrmClient;
+use AmoDocGenerator\AmoCrm\AmoCrmNoteService;
 use AmoDocGenerator\Documents\DocumentGenerationService;
 use AmoDocGenerator\Security\GenerateTokenStore;
 use AmoDocGenerator\Security\RequestAuthenticator;
+use AmoDocGenerator\Storage\PrefillCache;
+use AmoDocGenerator\Support\JsonLogger;
 
-// Directory setup / Пути к директориям
-$baseDir  = realpath(__DIR__ . '/..');
-$docDir  = rtrim($config['document_path'], '/');
-$logDir  = rtrim($config['logs_path'], '/');
-$prefDir = rtrim($config['temp_data_path'], '/').'/prefill';
-@is_dir($docDir)  || @mkdir($docDir,  $DIR_MODE, true);
-@is_dir($logDir)  || @mkdir($logDir,  $DIR_MODE, true);
-@is_dir($prefDir) || @mkdir($prefDir, $DIR_MODE, true);
-$LOG = $logDir . '/generate.log';
-$log = function($x) use($LOG){ file_put_contents($LOG, json_encode($x, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT)."\n", FILE_APPEND); };
+$logger = JsonLogger::fromConfig($config, 'generate.log');
 
 // get input data / получить входные данные
 $raw = file_get_contents('php://input');
@@ -56,42 +47,9 @@ try{
   $document = $documentService->generate($lead + ['id' => $leadId], $contact, $template, $products, $discount);
   $url = $document['url'];
 
-    // кэш для префилла (1–7 дней) / cache for prefill (1-7 days)
-    $cacheDir = rtrim($config['cache_path'] ?? (rtrim($config['temp_data_path'],'/').'/cache'), '/');
-    @mkdir($cacheDir, $DIR_MODE, true);
-    file_put_contents(
-        $cacheDir . '/' . $leadId . '.json',
-        json_encode([
-            'saved_at' => time(),
-            'template' => $template,
-            'discount' => $discount,
-            'products' => $products
-        ], JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT)
-    );
-
-
-  // примечание: удалить предыдущее (если можно), создать новое / note: delete previous (if possible), create new
-  $metaPath = $prefDir . "/lead_{$leadId}_meta.json";
-  $meta = is_file($metaPath) ? json_decode(file_get_contents($metaPath), true) : [];
-  $prevNoteId = $meta['note_id'] ?? null;
-
-  // попытка удалить прошлое примечание (если API разрешит) / attempt to delete the previous note (if API allows)
-  if ($prevNoteId) {
-    try {
-      $amo->delete('/api/v4/leads/notes/'.(int)$prevNoteId);
-    } catch (Throwable $ignored) {
-      // игнорируем ошибки удаления — не критично / ignore delete errors — not critical
-    }
-  }
-
-  // создаём новое примечание / create a new note
-  $title = ($template==='act' ? 'Акт приёма-передачи' : 'Заказ-наряд');
-  $text  = "{$title} №{$leadId}: {$url}";
-  $r = $amo->post('/api/v4/leads/notes', [[
-    'entity_id'=>(int)$leadId,'entity_type'=>'leads','note_type'=>'common','params'=>['text'=>$text]
-  ]]);
-  $newId = $r['_embedded']['notes'][0]['id'] ?? null;
-  if ($newId) { $meta['note_id'] = $newId; file_put_contents($metaPath, json_encode($meta, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT)); }
+  PrefillCache::fromConfig($config)->write($leadId, $template, $discount, $products);
+  AmoCrmNoteService::fromClient($amo, rtrim($config['temp_data_path'], '/').'/prefill')
+      ->replaceDocumentNote($leadId, $template, $url);
 
   echo json_encode(['url'=>$url], JSON_UNESCAPED_UNICODE);
 
@@ -99,7 +57,7 @@ try{
   http_response_code(400);
   echo json_encode(['error'=>$e->getMessage()], JSON_UNESCAPED_UNICODE);
 } catch (Throwable $e){
-  $log(['EX'=>$e->getMessage(),'line'=>$e->getLine()]);
+  $logger->log(['EX'=>$e->getMessage(),'line'=>$e->getLine()]);
   http_response_code(500);
   echo json_encode(['error'=>'Internal Server Error'], JSON_UNESCAPED_UNICODE);
 }
