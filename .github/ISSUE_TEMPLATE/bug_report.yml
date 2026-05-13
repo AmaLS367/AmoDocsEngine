@@ -1,0 +1,50 @@
+name: Bug report
+description: Report a reproducible AmoDocsEngine bug.
+title: "bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not paste real amoCRM tokens, `config/config.php`, customer data, or generated private documents.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What broke?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: Provide minimal steps with sanitized values.
+      placeholder: |
+        1. Open public/ui.html?lead_id=...
+        2. Call ...
+        3. See ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: input
+    id: php-version
+    attributes:
+      label: PHP version
+      placeholder: "8.1"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Sanitized logs
+      description: Paste only sanitized log excerpts.
+      render: text
