@@ -36,6 +36,24 @@ final class DocumentGenerationServiceTest extends TestCase
         $service->generate(['id' => 55], null, 'order', [['name' => 'Service', 'unit_price' => 100, 'qty' => 1]], 0);
     }
 
+    public function testThrowsWhenDocumentDirectoryCannotBeCreated(): void
+    {
+        $paths = $this->fixturePaths();
+        touch($paths['template'] . '/order_template.docx');
+        $blockedDocumentPath = $paths['document'] . '/blocked-by-file';
+        file_put_contents($blockedDocumentPath, 'not a directory');
+        $config = $this->config($paths);
+        $config['document_path'] = $blockedDocumentPath . '/documents';
+        $service = new DocumentGenerationService($config, static function (): FakeTemplateProcessor {
+            return new FakeTemplateProcessor();
+        });
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Parent directory');
+
+        $service->generate(['id' => 55], null, 'order', [['name' => 'Service', 'unit_price' => 100, 'qty' => 1]], 0);
+    }
+
     /**
      * @return array{template:string,document:string}
      */

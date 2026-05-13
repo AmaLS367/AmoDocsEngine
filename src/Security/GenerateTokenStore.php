@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace AmoDocGenerator\Security;
 
+use AmoDocGenerator\Support\Filesystem;
+use RuntimeException;
+
 final class GenerateTokenStore
 {
     private string $path;
@@ -98,7 +101,10 @@ final class GenerateTokenStore
     private function save(array $tokens): void
     {
         $dir = dirname($this->path);
-        @is_dir($dir) || @mkdir($dir, 0775, true);
-        file_put_contents($this->path, json_encode($tokens, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+        Filesystem::ensureDirectory($dir, 0775, 'Token directory');
+
+        if (file_put_contents($this->path, json_encode($tokens, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)) === false) {
+            throw new RuntimeException(sprintf('Unable to write to file "%s"', $this->path));
+        }
     }
 }

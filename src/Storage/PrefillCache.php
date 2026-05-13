@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace AmoDocGenerator\Storage;
 
+use AmoDocGenerator\Support\Filesystem;
+use RuntimeException;
+
 final class PrefillCache
 {
     private string $cacheDir;
@@ -49,13 +52,19 @@ final class PrefillCache
      */
     public function write(int $leadId, string $template, int $discount, array $products): void
     {
-        @is_dir($this->cacheDir) || @mkdir($this->cacheDir, $this->dirMode, true);
-        file_put_contents($this->path($leadId), json_encode([
+        Filesystem::ensureDirectory($this->cacheDir, $this->dirMode, 'Cache directory');
+
+        $path = $this->path($leadId);
+        $data = json_encode([
             'saved_at' => time(),
             'template' => $template,
             'discount' => $discount,
             'products' => $products,
-        ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+        ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+
+        if (file_put_contents($path, $data) === false) {
+            throw new RuntimeException(sprintf('Unable to write to cache file: %s', $path));
+        }
     }
 
     private function path(int $leadId): string

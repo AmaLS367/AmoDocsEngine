@@ -29,6 +29,18 @@ final class GenerateTokenStoreTest extends TestCase
         $this->assertFalse($store->validate(123, 'old'));
     }
 
+    public function testThrowsWhenTokenDirectoryCannotBeCreated(): void
+    {
+        $blockedPath = sys_get_temp_dir() . '/amodocs_token_blocked_' . uniqid('', true);
+        file_put_contents($blockedPath, 'not a directory');
+        $store = new GenerateTokenStore(str_replace('\\', '/', $blockedPath . '/tokens.json'), 60);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Token directory');
+
+        $store->issue(123);
+    }
+
     private function path(): string
     {
         $dir = sys_get_temp_dir() . '/amodocs_tokens_' . uniqid('', true);

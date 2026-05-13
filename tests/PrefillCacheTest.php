@@ -33,6 +33,18 @@ final class PrefillCacheTest extends TestCase
         $this->assertGreaterThan(0, $payload['saved_at']);
     }
 
+    public function testThrowsWhenCacheDirectoryCannotBeCreated(): void
+    {
+        $blockedPath = $this->dir();
+        file_put_contents($blockedPath, 'not a directory');
+        $cache = new PrefillCache($blockedPath . '/cache');
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Parent directory');
+
+        $cache->write(123, 'order', 0, []);
+    }
+
     private function dir(): string
     {
         return str_replace('\\', '/', sys_get_temp_dir() . '/amodocs_cache_' . uniqid('', true));

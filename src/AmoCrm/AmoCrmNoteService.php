@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace AmoDocGenerator\AmoCrm;
 
+use AmoDocGenerator\Support\Filesystem;
+use RuntimeException;
 use Throwable;
 
 final class AmoCrmNoteService
@@ -36,7 +38,7 @@ final class AmoCrmNoteService
 
     public function replaceDocumentNote(int $leadId, string $template, string $url): void
     {
-        @is_dir($this->metaDir) || @mkdir($this->metaDir, 0775, true);
+        Filesystem::ensureDirectory($this->metaDir, 0775, 'Note metadata directory');
         $metaPath = $this->metaPath($leadId);
         $meta = is_file($metaPath) ? json_decode((string)file_get_contents($metaPath), true) : [];
         $meta = is_array($meta) ? $meta : [];
@@ -53,7 +55,9 @@ final class AmoCrmNoteService
         $newId = $response['_embedded']['notes'][0]['id'] ?? null;
         if ($newId) {
             $meta['note_id'] = (int)$newId;
-            file_put_contents($metaPath, json_encode($meta, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+            if (file_put_contents($metaPath, json_encode($meta, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)) === false) {
+                throw new RuntimeException(sprintf('Unable to write note metadata file "%s"', $metaPath));
+            }
         }
     }
 

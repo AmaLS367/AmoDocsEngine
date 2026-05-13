@@ -50,6 +50,21 @@ final class AmoCrmNoteServiceTest extends TestCase
         $this->assertSame(20, $meta['note_id']);
     }
 
+    public function testThrowsWhenMetadataDirectoryCannotBeCreated(): void
+    {
+        $blockedPath = $this->dir();
+        file_put_contents($blockedPath, 'not a directory');
+        $service = new AmoCrmNoteService($blockedPath . '/meta', static function (): void {
+        }, static function (): array {
+            return [];
+        });
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Parent directory');
+
+        $service->replaceDocumentNote(123, 'order', 'https://docs.example/doc.docx');
+    }
+
     private function dir(): string
     {
         return str_replace('\\', '/', sys_get_temp_dir() . '/amodocs_notes_' . uniqid('', true));

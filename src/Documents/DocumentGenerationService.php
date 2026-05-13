@@ -6,6 +6,7 @@ namespace AmoDocGenerator\Documents;
 
 use AmoDocGenerator\AmoCrm\CustomFieldMapper;
 use AmoDocGenerator\DocumentDataBuilder;
+use AmoDocGenerator\Support\Filesystem;
 use AmoDocGenerator\Support\RubleFormatter;
 use PhpOffice\PhpWord\TemplateProcessor;
 use RuntimeException;
@@ -47,7 +48,7 @@ final class DocumentGenerationService
 
         $templatePath = $this->templateRegistry->path($template);
         $documentDir = rtrim((string)$this->config['document_path'], '/');
-        @is_dir($documentDir) || @mkdir($documentDir, (int)$this->config['dir_mode'], true);
+        Filesystem::ensureDirectory($documentDir, (int)$this->config['dir_mode'], 'Document directory');
 
         foreach (glob($documentDir . "/doc_{$leadId}_*.docx") ?: [] as $oldFile) {
             @unlink($oldFile);
