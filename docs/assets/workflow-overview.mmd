@@ -1,0 +1,17 @@
+sequenceDiagram
+    participant UI as Browser UI
+    participant Prefill as GET /api/prefill.php
+    participant Quote as POST /api/quote.php
+    participant Generate as POST /api/generate.php
+    participant Amo as amoCRM API
+    participant Docx as DOCX storage
+
+    UI->>Prefill: lead_id
+    Prefill-->>UI: cached form + generate_token
+    UI->>Quote: products + discount
+    Quote-->>UI: rows + totals + total_words
+    UI->>Generate: lead_id + template + products + generate_token
+    Generate->>Amo: fetch lead/contact
+    Generate->>Docx: render PhpWord template
+    Generate->>Amo: replace document note
+    Generate-->>UI: generated document URL

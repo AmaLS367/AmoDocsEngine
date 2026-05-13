@@ -1,0 +1,14 @@
+flowchart LR
+    UI["Browser UI<br/>public/ui.html + app.js"]
+    API["HTTP endpoints<br/>generate / prefill / quote"]
+    Security["Security<br/>GenerateTokenStore + HMAC"]
+    Amo["amoCRM<br/>leads, contacts, notes"]
+    Docs["Documents<br/>PhpWord + templates"]
+    Storage["Runtime storage<br/>cache, tokens, logs"]
+
+    UI --> API
+    API --> Security
+    API --> Amo
+    API --> Docs
+    API --> Storage
+    Docs --> Storage
