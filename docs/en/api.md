@@ -1,4 +1,25 @@
-# 🔌 API
+<h1 align="center">🔌 API Reference</h1>
+
+<p align="center">
+  <strong>HTTP contracts for prefill, quote preview, and document generation.</strong>
+</p>
+
+<p align="center">
+  <a href="index.md">📚 Docs</a> ·
+  <a href="configuration.md">⚙️ Configuration</a> ·
+  <a href="templates.md">🧾 Templates</a> ·
+  <a href="../ru/api.md">🇷🇺 RU</a>
+</p>
+
+---
+
+## 🧭 Endpoint Map
+
+| Endpoint | Auth | Purpose |
+| --- | --- | --- |
+| `GET /api/prefill.php?lead_id=` | none | Restore cached form and issue `generate_token` |
+| `POST /api/quote.php` | none | Calculate backend totals for UI preview |
+| `POST /api/generate.php` | `generate_token` or HMAC | Generate DOCX and update amoCRM note |
 
 All responses are JSON unless a generated document URL points to a DOCX file.
 
@@ -88,4 +109,6 @@ hash_hmac('sha256', raw_json_body, hmac_secret)
 
 Use exactly the raw body bytes sent to `generate.php`. Do not sign a re-encoded JSON object.
 
-Next: [Templates](templates.md)
+---
+
+**Next:** [Templates](templates.md) · **Back:** [Configuration](configuration.md)

@@ -1,4 +1,26 @@
-# 🧪 Development
+<h1 align="center">🧪 Development</h1>
+
+<p align="center">
+  <strong>Understand the module boundaries, local checks, and contribution workflow.</strong>
+</p>
+
+<p align="center">
+  <a href="index.md">📚 Docs</a> ·
+  <a href="operations.md">🛠️ Operations</a> ·
+  <a href="../../CONTRIBUTING.md">🤝 Contributing</a> ·
+  <a href="../ru/development.md">🇷🇺 RU</a>
+</p>
+
+---
+
+## 🧭 Development Map
+
+| Layer | Directory |
+| --- | --- |
+| HTTP entrypoints | `api/` |
+| Domain services | `src/` |
+| Runtime config example | `config/config.example.php` |
+| PHPUnit coverage | `tests/` |
 
 ## Project Layout
 
@@ -39,4 +61,6 @@ Use small concern-based commits:
 - `refactor(api): isolate prefill cache`
 - `test: cover token validation`
 
-Next: [Back to documentation index](index.md)
+---
+
+**Back:** [Documentation index](index.md) · **Community:** [Contributing](../../CONTRIBUTING.md)

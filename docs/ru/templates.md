@@ -1,4 +1,25 @@
-# 🧾 Word-шаблоны
+<h1 align="center">🧾 Word-шаблоны</h1>
+
+<p align="center">
+  <strong>DOCX-шаблоны, плейсхолдеры, табличные строки и новые типы документов.</strong>
+</p>
+
+<p align="center">
+  <a href="index.md">📚 Документация</a> ·
+  <a href="api.md">🔌 API</a> ·
+  <a href="operations.md">🛠️ Эксплуатация</a> ·
+  <a href="../en/templates.md">🇬🇧 EN</a>
+</p>
+
+---
+
+## 🧭 Карта шаблонов
+
+| Template key | DOCX-файл | Назначение |
+| --- | --- | --- |
+| `order` | `order_template.docx` | Заказ-наряд со строками услуг |
+| `act` | `act_template.docx` | Акт приема-передачи |
+| custom | настроен в `templates` | Любой добавленный тип документа |
 
 Шаблоны лежат в `templates/` и заполняются через PhpWord `TemplateProcessor`.
 
@@ -65,4 +86,6 @@
 - Не переименовывайте существующие ключи без изменения backend-сервиса.
 - Загружайте `.docx`, не `.doc`.
 
-Дальше: [Эксплуатация](operations.md)
+---
+
+**Дальше:** [Эксплуатация](operations.md) · **Назад:** [API](api.md)

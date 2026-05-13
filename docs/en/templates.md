@@ -1,4 +1,25 @@
-# 🧾 Word Templates
+<h1 align="center">🧾 Word Templates</h1>
+
+<p align="center">
+  <strong>Design DOCX templates, placeholders, table rows, and new document types.</strong>
+</p>
+
+<p align="center">
+  <a href="index.md">📚 Docs</a> ·
+  <a href="api.md">🔌 API</a> ·
+  <a href="operations.md">🛠️ Operations</a> ·
+  <a href="../ru/templates.md">🇷🇺 RU</a>
+</p>
+
+---
+
+## 🧭 Template Map
+
+| Template key | DOCX file | Purpose |
+| --- | --- | --- |
+| `order` | `order_template.docx` | Work order with service rows |
+| `act` | `act_template.docx` | Acceptance/transfer act |
+| custom | configured in `templates` | Any added document type |
 
 Templates live in `templates/` and are rendered through PhpWord `TemplateProcessor`.
 
@@ -65,4 +86,6 @@ Then call:
 - Do not rename existing keys unless the backend service is updated.
 - Upload templates as `.docx`, not `.doc`.
 
-Next: [Operations](operations.md)
+---
+
+**Next:** [Operations](operations.md) · **Back:** [API](api.md)

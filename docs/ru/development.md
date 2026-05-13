@@ -1,4 +1,26 @@
-# 🧪 Разработка
+<h1 align="center">🧪 Разработка</h1>
+
+<p align="center">
+  <strong>Границы модулей, локальные проверки и contribution workflow.</strong>
+</p>
+
+<p align="center">
+  <a href="index.md">📚 Документация</a> ·
+  <a href="operations.md">🛠️ Эксплуатация</a> ·
+  <a href="../../CONTRIBUTING.md">🤝 Contributing</a> ·
+  <a href="../en/development.md">🇬🇧 EN</a>
+</p>
+
+---
+
+## 🧭 Карта разработки
+
+| Слой | Директория |
+| --- | --- |
+| HTTP entrypoints | `api/` |
+| Domain services | `src/` |
+| Runtime config example | `config/config.example.php` |
+| PHPUnit coverage | `tests/` |
 
 ## Структура проекта
 
@@ -39,4 +61,6 @@ foreach ($file in $files) { php -l $file.FullName }
 - `refactor(api): isolate prefill cache`
 - `test: cover token validation`
 
-Дальше: [К индексу документации](index.md)
+---
+
+**Назад:** [Индекс документации](index.md) · **Community:** [Contributing](../../CONTRIBUTING.md)

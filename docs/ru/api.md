@@ -1,4 +1,25 @@
-# 🔌 API
+<h1 align="center">🔌 API Reference</h1>
+
+<p align="center">
+  <strong>HTTP-контракты для prefill, quote preview и генерации документа.</strong>
+</p>
+
+<p align="center">
+  <a href="index.md">📚 Документация</a> ·
+  <a href="configuration.md">⚙️ Конфигурация</a> ·
+  <a href="templates.md">🧾 Шаблоны</a> ·
+  <a href="../en/api.md">🇬🇧 EN</a>
+</p>
+
+---
+
+## 🧭 Карта endpoint-ов
+
+| Endpoint | Auth | Назначение |
+| --- | --- | --- |
+| `GET /api/prefill.php?lead_id=` | нет | Восстановить форму и выдать `generate_token` |
+| `POST /api/quote.php` | нет | Посчитать backend totals для UI preview |
+| `POST /api/generate.php` | `generate_token` или HMAC | Сгенерировать DOCX и обновить заметку amoCRM |
 
 Все ответы JSON, кроме ссылок на готовые DOCX-файлы.
 
@@ -88,4 +109,6 @@ hash_hmac('sha256', raw_json_body, hmac_secret)
 
 Подписывать нужно ровно тот raw body, который отправляется в `generate.php`, без повторного JSON encoding.
 
-Дальше: [Шаблоны](templates.md)
+---
+
+**Дальше:** [Шаблоны](templates.md) · **Назад:** [Конфигурация](configuration.md)

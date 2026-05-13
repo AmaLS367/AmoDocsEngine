@@ -1,4 +1,27 @@
-# ⚙️ Configuration
+<h1 align="center">⚙️ Configuration</h1>
+
+<p align="center">
+  <strong>Configure OAuth, field IDs, templates, paths, and request security without committing secrets.</strong>
+</p>
+
+<p align="center">
+  <a href="index.md">📚 Docs</a> ·
+  <a href="getting-started.md">🚀 Start</a> ·
+  <a href="api.md">🔌 API</a> ·
+  <a href="../ru/configuration.md">🇷🇺 RU</a>
+</p>
+
+---
+
+## 🧭 At a Glance
+
+| Config area | File / key |
+| --- | --- |
+| OAuth | `client_id`, `client_secret`, `redirect_uri`, `base_domain` |
+| Fields | `amo_fields` by amoCRM field ID |
+| Security | `security.generate_auth_mode` |
+| Templates | `templates` registry |
+| Runtime | paths for documents, logs, cache, tokens |
 
 `config/config.php` is ignored by git because it contains secrets. Start from `config/config.example.php`.
 
@@ -89,4 +112,6 @@ These files must stay out of git:
 - `documents/`
 - `logs/`
 
-Next: [API](api.md)
+---
+
+**Next:** [API](api.md) · **Back:** [Getting Started](getting-started.md)

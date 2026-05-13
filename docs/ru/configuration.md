@@ -1,4 +1,27 @@
-# ⚙️ Конфигурация
+<h1 align="center">⚙️ Конфигурация</h1>
+
+<p align="center">
+  <strong>OAuth, ID полей, шаблоны, runtime paths и request security без коммита секретов.</strong>
+</p>
+
+<p align="center">
+  <a href="index.md">📚 Документация</a> ·
+  <a href="getting-started.md">🚀 Запуск</a> ·
+  <a href="api.md">🔌 API</a> ·
+  <a href="../en/configuration.md">🇬🇧 EN</a>
+</p>
+
+---
+
+## 🧭 Коротко
+
+| Зона | Ключи |
+| --- | --- |
+| OAuth | `client_id`, `client_secret`, `redirect_uri`, `base_domain` |
+| Поля | `amo_fields` по ID amoCRM |
+| Security | `security.generate_auth_mode` |
+| Шаблоны | `templates` registry |
+| Runtime | пути для documents, logs, cache, tokens |
 
 `config/config.php` игнорируется git, потому что содержит секреты. Начинайте с `config/config.example.php`.
 
@@ -89,4 +112,6 @@ HMAC-режим нужен только для доверенных server-to-se
 - `documents/`
 - `logs/`
 
-Дальше: [API](api.md)
+---
+
+**Дальше:** [API](api.md) · **Назад:** [Запуск](getting-started.md)

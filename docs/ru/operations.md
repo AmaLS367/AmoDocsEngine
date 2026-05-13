@@ -1,4 +1,26 @@
-# 🛠️ Эксплуатация
+<h1 align="center">🛠️ Эксплуатация</h1>
+
+<p align="center">
+  <strong>Smoke checks, логи, диагностика хостинга и миграция amoCRM аккаунтов.</strong>
+</p>
+
+<p align="center">
+  <a href="index.md">📚 Документация</a> ·
+  <a href="templates.md">🧾 Шаблоны</a> ·
+  <a href="development.md">🧪 Разработка</a> ·
+  <a href="../en/operations.md">🇬🇧 EN</a>
+</p>
+
+---
+
+## 🧭 Карта эксплуатации
+
+| Зона | Сначала проверить |
+| --- | --- |
+| Runtime data | `data/`, `documents/`, `logs/` |
+| OAuth | `config/token.json` |
+| Request auth | `data/security/generate_tokens.json` |
+| Exceptions | `logs/generate.log` |
 
 ## Runtime-файлы
 
@@ -51,4 +73,6 @@ Windows:
 
 Для другого amoCRM аккаунта обновите OAuth-данные, `base_domain`, `subdomain`, `amo_fields` и заново пройдите OAuth для создания свежего `config/token.json`.
 
-Дальше: [Разработка](development.md)
+---
+
+**Дальше:** [Разработка](development.md) · **Назад:** [Шаблоны](templates.md)

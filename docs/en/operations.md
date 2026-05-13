@@ -1,4 +1,26 @@
-# 🛠️ Operations
+<h1 align="center">🛠️ Operations</h1>
+
+<p align="center">
+  <strong>Run smoke checks, read logs, troubleshoot hosting issues, and migrate amoCRM accounts.</strong>
+</p>
+
+<p align="center">
+  <a href="index.md">📚 Docs</a> ·
+  <a href="templates.md">🧾 Templates</a> ·
+  <a href="development.md">🧪 Development</a> ·
+  <a href="../ru/operations.md">🇷🇺 RU</a>
+</p>
+
+---
+
+## 🧭 Operations Map
+
+| Area | First file to check |
+| --- | --- |
+| Runtime data | `data/`, `documents/`, `logs/` |
+| OAuth | `config/token.json` |
+| Request auth | `data/security/generate_tokens.json` |
+| Exceptions | `logs/generate.log` |
 
 ## Runtime Files
 
@@ -51,4 +73,6 @@ Use the error message to decide whether the failure is template, amoCRM, securit
 
 For another amoCRM account, update OAuth credentials, `base_domain`, `subdomain`, `amo_fields`, and run OAuth again to create a fresh `config/token.json`.
 
-Next: [Development](development.md)
+---
+
+**Next:** [Development](development.md) · **Back:** [Templates](templates.md)

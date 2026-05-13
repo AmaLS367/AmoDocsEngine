@@ -1,6 +1,21 @@
-# 📚 AmoDocsEngine Documentation
+<p align="center">
+  <img src="../assets/github-social-preview.png" alt="AmoDocsEngine documentation preview" width="100%">
+</p>
 
-English documentation for installing, configuring, operating, and extending AmoDocsEngine.
+<h1 align="center">📚 AmoDocsEngine Documentation</h1>
+
+<p align="center">
+  <strong>Install, configure, operate, and extend a secure amoCRM → DOCX automation engine.</strong>
+</p>
+
+<p align="center">
+  <a href="../../README.md">🏠 README</a> ·
+  <a href="../ru/index.md">🇷🇺 Русский</a> ·
+  <a href="api.md">🔌 API</a> ·
+  <a href="../../SECURITY.md">🛡️ Security</a>
+</p>
+
+---
 
 ## 🧭 Navigation
 
@@ -20,6 +35,15 @@ English documentation for installing, configuring, operating, and extending AmoD
 3. Fill amoCRM OAuth credentials and `amo_fields` IDs.
 4. Run OAuth through `oauth.php?code=...`.
 5. Open `public/ui.html?lead_id=<ID>`.
+
+## 🧩 Documentation Type Map
+
+| Type | Pages |
+| --- | --- |
+| Tutorial | [Getting Started](getting-started.md) |
+| How-to | [Configuration](configuration.md), [Templates](templates.md), [Operations](operations.md) |
+| Reference | [API](api.md), [Development](development.md) |
+| Explanation | Architecture and workflow sections below |
 
 ## 🏗️ Architecture Snapshot
 
@@ -67,4 +91,6 @@ sequenceDiagram
 
 Diagram sources: [architecture](../assets/architecture-overview.mmd), [workflow](../assets/workflow-overview.mmd).
 
-Next: [Getting Started](getting-started.md)
+---
+
+**Next:** [Getting Started](getting-started.md) · **Русский:** [Документация](../ru/index.md)

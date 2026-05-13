@@ -129,7 +129,7 @@ Current suite covers URL routing, quote calculations, amoCRM client behavior, fi
 
 - **Description:** amoCRM document generation engine with OAuth, DOCX templates, secure browser flow, quote preview, and shared-hosting deployment.
 - **Topics:** `php`, `amocrm`, `docx`, `phpword`, `crm`, `document-generation`.
-- **Social preview:** upload `docs/assets/social-preview.png` in GitHub repository settings.
+- **Social preview:** upload `docs/assets/github-social-preview.png` in GitHub repository settings.
 - **Community:** keep [Security](SECURITY.md), [Contributing](CONTRIBUTING.md), [Code of Conduct](CODE_OF_CONDUCT.md), and GitHub issue templates visible.
 
 ---

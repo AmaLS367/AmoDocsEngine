@@ -1,6 +1,21 @@
-# 📚 Документация AmoDocsEngine
+<p align="center">
+  <img src="../assets/github-social-preview.png" alt="AmoDocsEngine documentation preview" width="100%">
+</p>
 
-Русская документация по установке, настройке, эксплуатации и расширению AmoDocsEngine.
+<h1 align="center">📚 Документация AmoDocsEngine</h1>
+
+<p align="center">
+  <strong>Установка, настройка, эксплуатация и расширение secure amoCRM → DOCX automation engine.</strong>
+</p>
+
+<p align="center">
+  <a href="../../README.md">🏠 README</a> ·
+  <a href="../en/index.md">🇬🇧 English</a> ·
+  <a href="api.md">🔌 API</a> ·
+  <a href="../../SECURITY.md">🛡️ Security</a>
+</p>
+
+---
 
 ## 🧭 Навигация
 
@@ -20,6 +35,15 @@
 3. Заполнить amoCRM OAuth и ID полей в `amo_fields`.
 4. Проверить API через `quote.php`.
 5. Разобрать ошибки через `logs/generate.log`.
+
+## 🧩 Типы документации
+
+| Тип | Страницы |
+| --- | --- |
+| Tutorial | [Запуск](getting-started.md) |
+| How-to | [Конфигурация](configuration.md), [Шаблоны](templates.md), [Эксплуатация](operations.md) |
+| Reference | [API](api.md), [Разработка](development.md) |
+| Explanation | Архитектура и workflow ниже |
 
 ## 🏗️ Кратко об архитектуре
 
@@ -67,4 +91,6 @@ sequenceDiagram
 
 Исходники схем: [architecture](../assets/architecture-overview.mmd), [workflow](../assets/workflow-overview.mmd).
 
-Дальше: [Запуск](getting-started.md)
+---
+
+**Дальше:** [Запуск](getting-started.md) · **English:** [Documentation](../en/index.md)

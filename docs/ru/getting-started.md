@@ -1,4 +1,26 @@
-# 🚀 Запуск
+<h1 align="center">🚀 Запуск</h1>
+
+<p align="center">
+  <strong>Установить AmoDocsEngine, подключить amoCRM OAuth и открыть UI генерации документов.</strong>
+</p>
+
+<p align="center">
+  <a href="index.md">📚 Документация</a> ·
+  <a href="configuration.md">⚙️ Конфигурация</a> ·
+  <a href="api.md">🔌 API</a> ·
+  <a href="../en/getting-started.md">🇬🇧 EN</a>
+</p>
+
+---
+
+## 🧭 Коротко
+
+| Шаг | Результат |
+| --- | --- |
+| Установить зависимости | готов `vendor/` |
+| Скопировать конфиг | есть ignored `config/config.php` |
+| Пройти OAuth | есть `config/token.json` |
+| Открыть UI | загружается `public/ui.html?lead_id=<ID>` |
 
 ## Требования
 
@@ -60,4 +82,6 @@ curl -X POST https://<domain>/<path>/api/quote.php \
 
 Ожидается JSON с `"total":1000` и `total_words`.
 
-Дальше: [Конфигурация](configuration.md)
+---
+
+**Дальше:** [Конфигурация](configuration.md) · **Назад:** [Индекс документации](index.md)
