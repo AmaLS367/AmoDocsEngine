@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AmoDocGenerator\Documents;
 
+use AmoDocGenerator\AmoCrm\CustomFieldMapper;
 use AmoDocGenerator\DocumentDataBuilder;
 use AmoDocGenerator\Support\RubleFormatter;
 use PhpOffice\PhpWord\TemplateProcessor;
@@ -13,6 +14,7 @@ final class DocumentGenerationService
 {
     /** @var array<string, mixed> */
     private array $config;
+    private CustomFieldMapper $fieldMapper;
     /** @var callable */
     private $processorFactory;
 
@@ -22,6 +24,7 @@ final class DocumentGenerationService
     public function __construct(array $config, ?callable $processorFactory = null)
     {
         $this->config = $config;
+        $this->fieldMapper = new CustomFieldMapper(is_array($config['amo_fields'] ?? null) ? $config['amo_fields'] : []);
         $this->processorFactory = $processorFactory ?? static function (string $templatePath): TemplateProcessor {
             return new TemplateProcessor($templatePath);
         };
@@ -53,17 +56,17 @@ final class DocumentGenerationService
         $phone = $this->phoneFromContact($contact);
 
         [$lastName, $firstName, $middleName] = $this->fioParts($contact);
-        $lastName = $this->customField($fields, 'Фамилия') ?: $lastName;
-        $firstName = $this->customField($fields, 'Имя') ?: $firstName;
-        $middleName = $this->customField($fields, 'Отчество') ?: $middleName;
+        $lastName = $this->fieldMapper->value($fields, 'last_name') ?: $lastName;
+        $firstName = $this->fieldMapper->value($fields, 'first_name') ?: $firstName;
+        $middleName = $this->fieldMapper->value($fields, 'middle_name') ?: $middleName;
 
         $processor->setValue('Номер', $leadId);
         $processor->setValue('Дата', date('d.m.Y'));
         $processor->setValue('Телефон', $phone ? ' ' . $phone : '');
-        $processor->setValue('Марка', $this->customField($fields, 'Марка') ?: '—');
-        $processor->setValue('Модель', $this->customField($fields, 'Модель') ?: '—');
-        $processor->setValue('VIN', $this->customField($fields, 'VIN') ?: '—');
-        $processor->setValue('Год выпуска', $this->customField($fields, 'Год выпуска') ?: '—');
+        $processor->setValue('Марка', $this->fieldMapper->value($fields, 'car_make') ?: '—');
+        $processor->setValue('Модель', $this->fieldMapper->value($fields, 'car_model') ?: '—');
+        $processor->setValue('VIN', $this->fieldMapper->value($fields, 'vin') ?: '—');
+        $processor->setValue('Год выпуска', $this->fieldMapper->value($fields, 'year') ?: '—');
         $processor->setValue('Фамилия', $lastName);
         $processor->setValue('Имя', $firstName);
         $processor->setValue('Отчество', $middleName);
@@ -142,17 +145,4 @@ final class DocumentGenerationService
         return array_pad($parts, 3, '');
     }
 
-    /**
-     * @param array<int, array<string, mixed>> $fields
-     */
-    private function customField(array $fields, string $name): string
-    {
-        foreach ($fields as $field) {
-            if (($field['field_name'] ?? '') === $name) {
-                return (string)($field['values'][0]['value'] ?? '');
-            }
-        }
-
-        return '';
-    }
 }
